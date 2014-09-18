@@ -24,20 +24,30 @@ class TicketListViewController: UIViewController, UITableViewDelegate, UITableVi
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        // Do any additional setup after loading the view, typically from a nib.
-        
+
+        self.navigationItem.title = "Jira Tickets"
+
+        // let's load the ticket URLs which we've stashed in a JSON file hiding in the application bundle
         ticketURLsObject.loadTicketURLs()
     }
 
-    override func didReceiveMemoryWarning() {
-        super.didReceiveMemoryWarning()
-        // Dispose of any resources that can be recreated.
-    }
-
-    func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-
-        return(ticketURLsObject.ticketURLs.count)
+    override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?)
+    {
+        var detailVC = segue.destinationViewController as IHRTicketDetailViewController
         
+        if let ticketCell = sender as? IHRTicketCollectionTableViewCell
+        {
+            detailVC.ticketURL = ticketCell.ticketURL
+        }
+    }
+    
+    // these table view data source methods populate the table with 
+    // Jira ticket numbers, if the app finds them...
+    func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        var count = ticketURLsObject.ticketURLs.count
+        
+        println("count of urls is \(count)")
+        return(ticketURLsObject.ticketURLs.count)
     }
     
     func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
@@ -48,36 +58,27 @@ class TicketListViewController: UIViewController, UITableViewDelegate, UITableVi
         if(ticketCell == nil)
         {
             ticketCell = IHRTicketCollectionTableViewCell(style: UITableViewCellStyle.Default, reuseIdentifier: "JiraCell")
+            
+            ticketCell?.parentVC = self
         }
         
         var ticketURLs = ticketURLsObject.ticketURLs as NSArray
         
-        println("getting indexPath row of \(indexPath.row)")
-        
-        for item in ticketURLs as NSArray
-        {
-            println("item is \(item)")
-            
-            if let string = item as? String
-            {
-                println("item is a string")
-            }
-            
-            if let url = item as? NSURL
-            {
-                println("item is a url")
-            }
-            
-        }
-        
         let fullURLString = ticketURLs.objectAtIndex(indexPath.row) as String
         
-        if let fullURL = NSURL.URLWithString(fullURLString)
-        {
-            ticketCell!.textLabel!.text = fullURL.lastPathComponent
-        }
+        var fullURL = NSURL(string: fullURLString)
+        
+        ticketCell!.ticketURL = fullURL
+        
+        ticketCell!.textLabel!.text = fullURL.lastPathComponent
         
         return ticketCell!
     }
+    
+    override func didReceiveMemoryWarning() {
+        super.didReceiveMemoryWarning()
+        // Dispose of any resources that can be recreated.
+    }
+    
 }
 

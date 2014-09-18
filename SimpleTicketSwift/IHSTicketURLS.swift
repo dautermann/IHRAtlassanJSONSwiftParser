@@ -24,6 +24,8 @@ class IHSTicketURLS: NSObject {
                 {
                     ticketURLs = someDictionary.objectForKey(eachKey) as [NSURL]
                     
+                    // let's print these out in the console just to be nice 
+                    // to whoever is looking at this...
                     for item in ticketURLs as NSArray
                     {
                         println("ticketURLs is \(item)")

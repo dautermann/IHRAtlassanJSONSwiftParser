@@ -15,13 +15,17 @@ class IHRTicketDetailViewController: UIViewController {
     var ticketURL : NSURL?
 
     override func viewDidLoad() {
-        super.viewDidLoad()
 
+        super.viewDidLoad()
+        
         // Do any additional setup after loading the view.
         if ticketURL != nil
         {
             var ticketDataRequest = NSURLRequest(URL: ticketURL!, cachePolicy:NSURLRequestCachePolicy.ReloadIgnoringLocalAndRemoteCacheData, timeoutInterval: 30.0)
             
+            var urlAsString = self.ticketURL?.absoluteString
+            
+            self.navigationItem.title = ticketURL?.lastPathComponent
             
             NSURLConnection.sendAsynchronousRequest(ticketDataRequest, queue: NSOperationQueue.mainQueue(), completionHandler: { response, data, error in
             
@@ -31,9 +35,41 @@ class IHRTicketDetailViewController: UIViewController {
                     {
                         var error : NSError?
                         
-                        var jsonDictionary : NSDictionary = NSJSONSerialization.JSONObjectWithData(data, options:NSJSONReadingOptions.allZeros, error: &error) as NSDictionary
+                        var ticketDetailDictionary : NSDictionary = NSJSONSerialization.JSONObjectWithData(data, options:NSJSONReadingOptions.allZeros, error: &error) as NSDictionary
                         
+                        if error == nil
+                        {
+                            var detailText = String()
+                            var allKeys = ticketDetailDictionary.allKeys as [String]
+                            
+                            for eachKey in allKeys
+                            {
+                                var valueFromDict : AnyObject? = ticketDetailDictionary.objectForKey(eachKey)
+                                
+                                // ? mark here is the swift equivalent of "RespondsToSelector:"
+                                if (valueFromDict?.description != nil)
+                                {
+                                    // and if we're in here, we have a description...
+                                    var description : String = valueFromDict!.description
+
+                                    // ... that we can append to the detail text
+                                    detailText += "\(description)"
+                                }
+                                
+                            }
+                            
+                            self.detailTextView.text = detailText
+                            
+                        } else {
+                            var errorDescription = error?.description
+                            
+                            println("couldn't parse the json data from \(urlAsString) - \(errorDescription)")
+                        }
                     }
+                } else {
+                    var errorDescription = error?.description
+
+                    println("error making connection to \(urlAsString) - \(errorDescription)")
                 }
             })
         }

@@ -13,11 +13,6 @@ class IHRTicketCollectionTableViewCell: UITableViewCell {
     var ticketURL : NSURL?
     
     var parentVC : TicketListViewController?
-    
-    override func awakeFromNib() {
-        super.awakeFromNib()
-        // Initialization code
-    }
 
     func setTicketURL(urlToSet : NSURL)
     {
@@ -36,9 +31,13 @@ class IHRTicketCollectionTableViewCell: UITableViewCell {
             // Configure the view for the selected state
             super.setSelected(selected, animated: animated)
             
+            // and if we're selected for the first time, let's do a segue to the detail view
             if(selected)
             {
                 parentVC?.performSegueWithIdentifier("seeTicketDetail", sender: self)
+                
+                // and de-select the cell, too
+                super.setSelected(false, animated: false)
             }
         }
     }
